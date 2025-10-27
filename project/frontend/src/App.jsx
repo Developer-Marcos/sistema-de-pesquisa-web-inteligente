@@ -5,13 +5,13 @@ import LimiteHeader from "./LimiteHeader";
 function App() {
 
   return (
-    <div>
+    <div className="flex flex-col min-h-screen bg-gradient-to-r from-[#C1C1C1] to-[#5B5B5B]">
       <LimiteHeader />
-      <main>
+      <main className="flex-grow flex items-center justify-center">
         <Pagina_inicial />
       </main>
       <LimiteFooter />
-    </div>
+    </div> 
   )
 }
 
