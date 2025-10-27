@@ -1,7 +1,7 @@
 const LimiteHeader = () => {
       return(
           <header>
-            header
+            
           </header>  
       )
 }

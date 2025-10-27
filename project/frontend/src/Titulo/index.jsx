@@ -1,7 +1,7 @@
 const Titulo = () => {
       return (
             <div>
-                  <span>Pesquisa inteligente com <span>IA</span></span><br/>
+                  <p>Pesquisa inteligente com <span>IA</span></p>
                   <span>Descubra e aprenda sobre qualquer assunto.</span>
             </div>
       )
