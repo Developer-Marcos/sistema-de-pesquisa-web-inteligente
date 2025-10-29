@@ -1,13 +1,11 @@
-from config import API_KEY
+from config import LLM
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 from parsers import SchemaDeAnaliseDinamica
 
-llm = ChatGoogleGenerativeAI(
-      model="gemini-2.5-flash",
-      api_key=API_KEY
-)
+
+llm = LLM
 
 prompt_metaparser = """Você é um Engenheiro de Esquemas de Dados de IA. Sua única e exclusiva função é definir a estrutura de dados (schema) mais útil para a análise solicitada pelo usuário. Você deve agir como um tradutor de intenção para estrutura de dados.
 

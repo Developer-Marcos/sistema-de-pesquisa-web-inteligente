@@ -47,3 +47,4 @@ class SchemaDeAnaliseDinamica(BaseModel):
         None,
         description="Defina o tom de voz da análise final (ex: 'formal e acadêmico' ou 'casual e encorajador')."
     )
+

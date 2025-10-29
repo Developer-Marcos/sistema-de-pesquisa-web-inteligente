@@ -1,5 +1,9 @@
 python-dotenv
 langchain
 langchain-core
+langchain-tavily
 langchain_google_genai
 pydantic
+httpx
+trafilatura
+asyncio
