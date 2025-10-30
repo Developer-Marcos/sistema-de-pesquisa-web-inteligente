@@ -6,7 +6,7 @@ import asyncio
 
 from typing import List, Dict, Optional
 
-def buscar_urls(pergunta: str, api_key: str, max_resultados: int = 5) -> List[str]:
+def buscar_urls(pergunta: str, api_key: str, max_resultados: int = 15) -> List[str]:
       tavily_search_tool = TavilySearch(
       tavily_api_key = api_key,
       max_results = max_resultados
@@ -27,10 +27,8 @@ def buscar_urls(pergunta: str, api_key: str, max_resultados: int = 5) -> List[st
 
 
 limite = asyncio.Semaphore(3)
-async def baixar_conteudo(url: str) -> Dict[str, str]:
-    """
-    Baixa o conteúdo textual de uma URL, com User-Agent e controle de paralelismo.
-    """
+
+async def baixar_conteudo(url: str) -> dict[str, str]:
     headers = {
         "User-Agent": (
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -40,25 +38,45 @@ async def baixar_conteudo(url: str) -> Dict[str, str]:
     }
 
     async with limite:
-        try:
-            async with httpx.AsyncClient(timeout=15.0, headers=headers) as client:
-                resposta = await client.get(url)
-                # Se bloqueado, retorna string vazia
-                if resposta.status_code != 200:
-                    print(f"Não foi possível acessar {url}: {resposta.status_code}")
-                    return {"url": url, "conteudo_textual": ""}
-                
-                conteudo_textual = trafilatura.extract(resposta.text)
-                if not conteudo_textual:
-                    conteudo_textual = ""
-                
-                return {"url": url, "conteudo_textual": conteudo_textual}
-        except Exception as e:
-            print(f"Erro ao processar {url}: {e}")
-            return {"url": url, "conteudo_textual": ""}
+        for tentativa in range(2):
+            try:
+                async with httpx.AsyncClient(
+                    timeout=httpx.Timeout(15.0),
+                    headers=headers,
+                    follow_redirects=True
+                ) as client:
+                    
+                    resposta = await client.get(url)
+
+                    if not (200 <= resposta.status_code < 300):
+                        print(f"Falha {resposta.status_code} em {url}")
+                        continue
+
+                    conteudo_textual = trafilatura.extract(resposta.text)
+                    metadata = trafilatura.extract_metadata(resposta.text)
+
+                    titulo = metadata.title if metadata and metadata.title else "Sem título"
+
+                    return {
+                        "url": url,
+                        "conteudo_textual": conteudo_textual or "",
+                        "title": titulo
+                    }
+
+            except (httpx.TimeoutException, httpx.NetworkError) as e:
+                print(f"Tentativa {tentativa + 1} falhou para {url}: {e}")
+                await asyncio.sleep(1.5 ** tentativa)
+
+            except Exception as e:
+                print(f"Erro inesperado ao processar {url}: {e}")
+                break
+
+        return {"url": url, "conteudo_textual": "", "title": "Sem título"}
+
+
 
 async def extrair_conteudo(urls: List[str]) -> List[Dict[str, str]]:
-      extracao = [baixar_conteudo(url) for url in urls]
-      resultados = await asyncio.gather(*extracao)
+    tarefas = [baixar_conteudo(url) for url in urls] 
+    resultados = await asyncio.gather(*tarefas)
 
-      return resultados
+    return resultados
