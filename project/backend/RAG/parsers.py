@@ -48,3 +48,9 @@ class SchemaDeAnaliseDinamica(BaseModel):
         description="Defina o tom de voz da análise final (ex: 'formal e acadêmico' ou 'casual e encorajador')."
     )
 
+class QueryAprimorada(BaseModel):
+    query_corrigida: str = Field(description="Texto original reescrito de forma clara e correta")
+    query_intencao_resumida: str = Field(description="Resumo curto da intenção da pergunta")
+    query_tecnica: str = Field(description="Versão formal e técnica, linguagem acadêmica")
+    query_simplificada: str = Field(description="Versão simples para iniciantes")
+    tokens_semanticos: list[str] = Field(description="Lista de palavras-chave e termos semânticos importantes")

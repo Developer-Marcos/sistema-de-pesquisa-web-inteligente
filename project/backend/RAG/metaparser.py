@@ -1,9 +1,7 @@
 from config import LLM
-from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 from parsers import SchemaDeAnaliseDinamica
-
 
 llm = LLM
 
