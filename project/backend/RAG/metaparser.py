@@ -40,8 +40,8 @@ parser = JsonOutputParser(pydantic_object=SchemaDeAnaliseDinamica)
 
 chain_criar_metaparser = prompt_final | llm | parser
 
-def criar_metaparser(pergunta):
-      metaparser = chain_criar_metaparser.invoke({"pergunta_usuario": pergunta})
+async def criar_metaparser(pergunta):
+      metaparser = await chain_criar_metaparser.ainvoke({"pergunta_usuario": pergunta})
       return metaparser
 
 

@@ -1,8 +1,8 @@
 from config import LLM
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_community.vectorstores import FAISS
-from langchain_core.prompts import PromptTemplate
-from langchain_core.output_parsers import PydanticOutputParser
+from langchain_core.prompts import PromptTemplate, ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
+from langchain_core.output_parsers import PydanticOutputParser, CommaSeparatedListOutputParser, JsonOutputParser
 from parsers import QueryAprimorada
 
 
@@ -11,6 +11,7 @@ def criar_embedder(chave_api):
         model="gemini-embedding-001",
         api_key=chave_api
     )
+
 
 def chunking(texto: str, url: str, titulo: str, max_chars: int = 500, overlap: int = 200) -> list[dict]:
     chunks = []
@@ -60,9 +61,7 @@ def query_enhancement(pergunta: str):
         - query_simplificada: linguagem simples
         - tokens_semanticos: lista de palavras chave sem stopwords
 
-        Foque em qualidade e clareza semântica.
-""")
-
+        Foque em qualidade e clareza semântica.""")
 
     prompt = PromptTemplate(
         template=prompt_query,
@@ -101,19 +100,82 @@ def batch_processing(chunks: list, modelo_embedder, tamanho_batch: int = 50) -> 
     return resultados_embeddings, resultados_metadados
 
 
-from langchain_community.vectorstores import FAISS
+def criar_db(embeddings, metadados, chunks, embedder_modelo):
+    text_embeddings = [(c["page_content"], emb) for c, emb in zip(chunks, embeddings)]
 
-from langchain_community.vectorstores import FAISS
-
-from langchain_community.vectorstores import FAISS
-
-def criar_db(embeddings_externos, metadados, chunks, embedder_object):
-    text_embeddings = [(c["page_content"], emb) for c, emb in zip(chunks, embeddings_externos)]
-    
     db_vetorial = FAISS.from_embeddings(
         text_embeddings=text_embeddings,
-        embedding=embedder_object,
+        embedding=embedder_modelo,
         metadatas=metadados
     )
     return db_vetorial
+
+
+def reranking(pergunta: str, resultados_semanticos: list, top_k: int = 5):
+    docs_texto = ""
+    for idx, doc in enumerate(resultados_semanticos):
+        docs_texto += f"\n[Documento {idx}]\n{doc.page_content}\n"
+
+    prompt_template = PromptTemplate(
+    template="""
+            Você é um reranker para um sistema de busca RAG.
+
+            Pergunta do usuário:
+            {pergunta}
+
+            Documentos recuperados:
+            {docs_texto}
+
+            Tarefa:
+            Classifique os documentos por relevância para responder à pergunta.
+
+            Regras:
+            - Retorne apenas uma lista de índices em ordem de relevância
+            - Somente números separados por vírgula
+            - Não escreva explicações
+
+            Exemplo de resposta: 3, 0, 2, 1
+
+            Resposta:
+            """,
+    input_variables=["pergunta", "docs_texto"])
+    
+    parser = CommaSeparatedListOutputParser()
+    chain_rerank = prompt_template | LLM | parser
+    ranked_indices = chain_rerank.invoke({"pergunta": pergunta,  "docs_texto": docs_texto})
+
+    reranked_docs = [resultados_semanticos[int(i)] for i in ranked_indices[:top_k]]
+
+    return reranked_docs
+
+
+async def gerar_resposta(contexto, pergunta, schema_gerado, parser: JsonOutputParser):
+    prompt_sistema = SystemMessagePromptTemplate.from_template("""
+            Você é um Analista de Dados e Pesquisa de Alta Performance.
+            Sua tarefa é ler e sintetizar EXCLUSIVAMENTE o CONTEXTO fornecido para gerar uma análise objetiva e precisa que responda à pergunta do usuário.
+            Você DEVE aderir estritamente ao SCHEMA JSON fornecido.
+            Não inclua texto introdutório, conclusivo ou Markdown na saída.""")
+    
+    prompt_tarefa = HumanMessagePromptTemplate.from_template("""
+            CONTEXTO RECUPERADO:
+            {contexto_recuperado}
+
+            Pergunta do Usuário:
+            {pergunta}
+
+            Schema para preenchimento:
+            {schema_gerado}
+            """)
+                
+    prompt_final = ChatPromptTemplate.from_messages([prompt_sistema, prompt_tarefa])
+    
+    chain_resposta = prompt_final | LLM | parser
+
+    pesquisa = await chain_resposta.ainvoke({
+        "contexto_recuperado": contexto,
+        "pergunta": pergunta,
+        "schema_gerado": schema_gerado
+    })
+
+    return pesquisa
 
