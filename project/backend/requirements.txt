@@ -5,6 +5,7 @@ langchain-tavily
 langchain_google_genai
 pydantic
 faiss-cpu
+sentence-transformers
 httpx
 trafilatura
 asyncio

@@ -1,16 +1,27 @@
 from config import LLM
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_community.vectorstores import FAISS
+from sentence_transformers import SentenceTransformer
+from embedder_wrapper import EmbedderWrapper
 from langchain_core.prompts import PromptTemplate, ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 from langchain_core.output_parsers import PydanticOutputParser, CommaSeparatedListOutputParser, JsonOutputParser
 from parsers import QueryAprimorada
 
+def criar_embedder(chave_api=None):
+    if chave_api:
+        try:
+            modelo = GoogleGenerativeAIEmbeddings(
+                model="gemini-embedding-001",
+                api_key=chave_api
+            )
+            return EmbedderWrapper(modelo)
+        except:
+            print("Falha no Gemini. Alternando para local.")
+    
+    modelo_local = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2", trust_remote_code=True)
+    print("Usando modelo local: MiniLM")
+    return EmbedderWrapper(modelo_local)
 
-def criar_embedder(chave_api):
-    return GoogleGenerativeAIEmbeddings(
-        model="gemini-embedding-001",
-        api_key=chave_api
-    )
 
 
 def chunking(texto: str, url: str, titulo: str, max_chars: int = 500, overlap: int = 200) -> list[dict]:
@@ -100,6 +111,7 @@ def batch_processing(chunks: list, modelo_embedder, tamanho_batch: int = 50) -> 
     return resultados_embeddings, resultados_metadados
 
 
+
 def criar_db(embeddings, metadados, chunks, embedder_modelo):
     text_embeddings = [(c["page_content"], emb) for c, emb in zip(chunks, embeddings)]
 
@@ -108,6 +120,7 @@ def criar_db(embeddings, metadados, chunks, embedder_modelo):
         embedding=embedder_modelo,
         metadatas=metadados
     )
+
     return db_vetorial
 
 
@@ -151,22 +164,29 @@ def reranking(pergunta: str, resultados_semanticos: list, top_k: int = 5):
 
 async def gerar_resposta(contexto, pergunta, schema_gerado, parser: JsonOutputParser):
     prompt_sistema = SystemMessagePromptTemplate.from_template("""
-            Você é um Analista de Dados e Pesquisa de Alta Performance.
-            Sua tarefa é ler e sintetizar EXCLUSIVAMENTE o CONTEXTO fornecido para gerar uma análise objetiva e precisa que responda à pergunta do usuário.
-            Você DEVE aderir estritamente ao SCHEMA JSON fornecido.
-            Não inclua texto introdutório, conclusivo ou Markdown na saída.""")
+        Você é um Analista de Dados e Pesquisa de Alta Performance.
+        Sua tarefa é ler e sintetizar o CONTEXTO fornecido para gerar uma análise objetiva e precisa.
+
+        Regras:
+        1. Dê prioridade ao conteúdo do CONTEXTO recuperado.
+        2. Se o CONTEXTO não conter informação suficiente para preencher algum campo, complete o campo com conhecimento geral confiável e relevante.
+        3. Mantenha precisão e consistência. Não invente fatos específicos que não sejam verdadeiros.
+        4. Você DEVE aderir estritamente ao SCHEMA JSON fornecido.
+        5. Para o campo "fontes_citadas", use SOMENTE URLs presentes no contexto. Se não houver, retorne ["não identificado"].
+        6. Não inclua explicações sobre ausência de dados; apenas forneça a melhor resposta possível.
+        7. Não inclua texto introdutório, conclusivo ou Markdown na saída.
+        """)
     
     prompt_tarefa = HumanMessagePromptTemplate.from_template("""
-            CONTEXTO RECUPERADO:
-            {contexto_recuperado}
+        CONTEXTO RECUPERADO:
+        {contexto_recuperado}
 
-            Pergunta do Usuário:
-            {pergunta}
+        Pergunta do Usuário:
+        {pergunta}
 
-            Schema para preenchimento:
-            {schema_gerado}
-            """)
-                
+        Schema para preenchimento:
+        {schema_gerado}""")
+             
     prompt_final = ChatPromptTemplate.from_messages([prompt_sistema, prompt_tarefa])
     
     chain_resposta = prompt_final | LLM | parser
@@ -178,4 +198,5 @@ async def gerar_resposta(contexto, pergunta, schema_gerado, parser: JsonOutputPa
     })
 
     return pesquisa
+
 
