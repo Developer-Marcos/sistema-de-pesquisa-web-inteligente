@@ -163,40 +163,42 @@ def reranking(pergunta: str, resultados_semanticos: list, top_k: int = 5):
 
 
 async def gerar_resposta(contexto, pergunta, schema_gerado, parser: JsonOutputParser):
-    prompt_sistema = SystemMessagePromptTemplate.from_template("""
-        Você é um Analista de Dados e Pesquisa de Alta Performance.
-        Sua tarefa é ler e sintetizar o CONTEXTO fornecido para gerar uma análise objetiva e precisa.
+    prompt_sistema = SystemMessagePromptTemplate.from_template(f"""
+Você é um Analista de Dados e Pesquisa de Alta Performance.
+Sua tarefa é ler e sintetizar o CONTEXTO fornecido para gerar uma análise objetiva e precisa, em formato JSON de acordo com o schema fornecido.
 
-        Regras:
-        1. Dê prioridade ao conteúdo do CONTEXTO recuperado.
-        2. Se o CONTEXTO não conter informação suficiente para preencher algum campo, complete o campo com conhecimento geral confiável e relevante.
-        3. Mantenha precisão e consistência. Não invente fatos específicos que não sejam verdadeiros.
-        4. Você DEVE aderir estritamente ao SCHEMA JSON fornecido.
-        5. Para o campo "fontes_citadas", use SOMENTE URLs presentes no contexto. Se não houver, retorne ["não identificado"].
-        6. Não inclua explicações sobre ausência de dados; apenas forneça a melhor resposta possível.
-        7. Não inclua texto introdutório, conclusivo ou Markdown na saída.
-        """)
-    
+Regras:
+
+1. Use o CONTEXTO como referência confiável para preencher os campos em 'campos_dinamicos'.
+2. Se algum detalhe não estiver no CONTEXTO, complemente com informações confiáveis e relevantes, usando suas próprias palavras.
+3. Cada campo deve ser conciso, informativo e explicativo, como se estivesse ensinando o assunto a alguém que quer compreender o tema.
+4. Não altere 'titulo_da_analise' nem 'resumo_executivo'.
+5. Preencha 'fontes_citadas' usando apenas URLs presentes no CONTEXTO; se não houver, use ["não identificado"].
+6. Retorne APENAS o JSON final do schema fornecido.
+7. Não inclua texto introdutório, conclusivo, explicações sobre ausência de dados ou Markdown fora do JSON.
+""")
+
     prompt_tarefa = HumanMessagePromptTemplate.from_template("""
-        CONTEXTO RECUPERADO:
-        {contexto_recuperado}
+    CONTEXTO RECUPERADO:
+    {contexto_recuperado}
 
-        Pergunta do Usuário:
-        {pergunta}
+    Pergunta do Usuário:
+    {pergunta}
 
-        Schema para preenchimento:
-        {schema_gerado}""")
-             
+    Schema para preenchimento:
+    {schema_gerado}
+    """)
+
     prompt_final = ChatPromptTemplate.from_messages([prompt_sistema, prompt_tarefa])
-    
-    chain_resposta = prompt_final | LLM | parser
 
-    pesquisa = await chain_resposta.ainvoke({
+    chain_final = prompt_final | LLM | parser
+
+    resultado = await chain_final.ainvoke({
         "contexto_recuperado": contexto,
         "pergunta": pergunta,
         "schema_gerado": schema_gerado
     })
 
-    return pesquisa
+    return resultado
 
 

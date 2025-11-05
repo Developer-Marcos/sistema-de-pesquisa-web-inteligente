@@ -5,22 +5,33 @@ from parsers import SchemaDeAnaliseDinamica
 
 llm = LLM
 
-prompt_metaparser = """Você é um Engenheiro de Esquemas de Dados de IA. Sua única e exclusiva função é definir a estrutura de dados (schema) mais útil para a análise solicitada pelo usuário. Você deve agir como um tradutor de intenção para estrutura de dados.
+prompt_metaparser = """Você é um Engenheiro de Estrutura de Análise. Com base na pergunta do usuário, gere **um JSON detalhado com os campos mais relevantes para responder à pergunta**.
 
-Regras de Formato Rigorosas:
-Você DEVE aderir estritamente à estrutura de dados definida. Não inclua NENHUM texto explicativo, introdutório, conclusivo, ou qualquer tipo de Markdown (como ```json) antes, dentro ou depois da saída. Gere APENAS o objeto JSON que preenche o esquema.
+Regras:
+- Apenas JSON válido do modelo MetaparserDinamico.
+- Todos os campos obrigatórios do schema devem ser preenchidos: 'titulo_da_analise', 'resumo_executivo', 'campos_dinamicos'.
+- 'campos_dinamicos' deve conter de 3 a 7 campos relevantes, cada um com 'nome' e opcionalmente 'descricao'.
+- Transforme o nome de cada campo em um título legível para humanos: substitua '_' por espaços, capitalize corretamente e preserve abreviações ou nomes próprios.
+- 'fontes_citadas' deve ser sempre [].
+- Não inclua explicações, texto extra ou Markdown.
+- Cada campo deve fazer sentido para a pergunta específica.
 
-Requisitos Específicos para Preenchimento dos Atributos:
-O campo 'titulo_da_analise' deve ser conciso e cobrir todo o escopo da pergunta.
-O campo 'resumo_executivo' deve ser uma síntese da resposta esperada (máx. 4 frases).
-Cada objeto em 'campos_dinamicos' DEVE ter um 'nome_tecnico' em snake_case e uma 'instrucao_de_preenchimento' clara para o LLM principal.
-Escolha um 'tipo_de_dado' apropriado para cada atributo (string, number, boolean ou array_de_strings).
-Defina o 'instrucao_de_tom' com um tom ideal para a análise deste tópico específico.
-[REGRA CRÍTICA]: O campo 'fontes_citadas' DEVE ser retornado como uma lista vazia ([]).
-
-Saída Exigida:
-Gere o objeto JSON final, preenchendo todos os campos da DynamicAnalysisSchema, com base na pergunta do usuário.
+Exemplo de saída esperada:
+{{
+  "titulo_da_analise": "Análise detalhada da Fotossíntese",
+  "resumo_executivo": "A fotossíntese é o processo pelo qual as plantas convertem luz solar em energia química, essencial para a vida na Terra.",
+  "campos_dinamicos": [
+    {{"nome": "Processo Biológico", "descricao": "Explicação passo a passo do processo da fotossíntese."}},
+    {{"nome": "Importância Ambiental", "descricao": "Impacto da fotossíntese no ecossistema."}},
+    {{"nome": "Principais Componentes", "descricao": "Elementos essenciais envolvidos na fotossíntese."}},
+    {{"nome": "Curiosidades", "descricao": "Informações interessantes e menos conhecidas sobre o tema."}}
+  ],
+  "fontes_citadas": []
+}}
 """
+
+
+
 prompt_funcao = """Contexto da Tarefa:
 Analise a pergunta do usuário e preencha o JSON da 'DynamicAnalysisSchema' com os campos de análise mais cruciais (entre 3 e 7 campos).
 

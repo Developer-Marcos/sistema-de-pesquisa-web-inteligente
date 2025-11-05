@@ -11,7 +11,7 @@ async def main():
     embedder_modelo = criar_embedder() # Embedder local
 
     # 1 - Define a pergunta e cria o metaparser em paralelo
-    pergunta = "Quais são as melhores práticas para construir uma reserva de emergência durante períodos de inflação alta?"
+    pergunta = "Como funciona a respiracao celular?"
     metaparser_task = asyncio.create_task(criar_metaparser(pergunta=pergunta))
 
     print("1 - Definiu a pergunta e o metaparser")

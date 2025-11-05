@@ -1,56 +1,55 @@
 from pydantic import BaseModel, Field
 from typing import List, Literal, Optional
 
-class DefinicaoAtributos(BaseModel):
-    nome_tecnico: str = Field(
+from pydantic import BaseModel, Field
+from typing import List, Optional
+
+class CampoDinamico(BaseModel):
+    nome: str = Field(
         ...,
-        description="O nome técnico, conciso e em snake_case do campo de dado (ex: 'custo_total' ou 'passos_de_execucao')."
+        description="O nome do campo que deve aparecer na análise final (ex: 'como_funciona', 'impacto_ambiental')."
+    )
+    descricao: Optional[str] = Field(
+        None,
+        description="Breve descrição do que o campo representa ou deve conter. Serve como guia para o LLM."
     )
 
-    nome_amigavel: str = Field(
-        ...,
-        description="O nome que será exibido para o usuário no Front-end (ex: 'Impacto Financeiro' ou 'Onde Encontrar')."
-    )
-
-    tipo_de_dado: Literal["string", "number", "boolean", "array_de_strings"] = Field(
-        "string",
-        description="O tipo de dado esperado para este campo (string, number, boolean ou array_de_strings). Deve ser o tipo mais estrito possível."
-    )
-    
-    instrucao_de_preenchimento: str = Field(
-        ...,
-        description="Instruções detalhadas para o LLM principal sobre o que exatamente deve ser colocado neste campo. Inclua a citação da fonte no final, por exemplo: (Fonte 1)."
-    )
-
-class SchemaDeAnaliseDinamica(BaseModel): 
+class SchemaDeAnaliseDinamica(BaseModel):
     titulo_da_analise: str = Field(
         ...,
-        description="Um título conciso e informativo, gerado com base na pergunta do usuário (ex: 'Análise de Viabilidade de Energia Solar')."
+        description="Um título conciso que resume toda a análise baseada na pergunta do usuário."
     )
-    
     resumo_executivo: str = Field(
         ...,
-        description="Um parágrafo curto (máx. 4 frases) sintetizando a resposta e a conclusão principal da análise. Inclua citações quando necessário (ex: '...é o mais seguro (Fonte 3)')."
+        description="Um resumo curto (máx. 4 frases) da análise, sintetizando a resposta principal."
     )
-    
-    campos_dinamicos: List[DefinicaoAtributos] = Field(
+    campos_dinamicos: List[CampoDinamico] = Field(
         ...,
-        description="Uma lista de 3 a 7 objetos que definem os campos de dados mais cruciais e relevantes para responder à pergunta do usuário com uma análise inteligente."
+        description="Lista de campos dinâmicos que descrevem os elementos mais importantes da análise. Cada campo tem 'nome' e opcionalmente 'descricao'."
     )
-    
     fontes_citadas: List[str] = Field(
-        ...,
-        description="Uma lista de todas as URLs completas das páginas web que foram usadas como contexto para gerar a análise (ex: 'https://site.com/riscos'). ESTE CAMPO DEVE SER PREENCHIDO NA CHAIN 2."
-    )
-    
-    instrucao_de_tom: Optional[str] = Field(
-        None,
-        description="Defina o tom de voz da análise final (ex: 'formal e acadêmico' ou 'casual e encorajador')."
+        default_factory=list,
+        description="Lista de URLs ou referências utilizadas como base para gerar a análise. Deve ser vazia ao gerar o metaparser."
     )
 
 class QueryAprimorada(BaseModel):
-    query_corrigida: str = Field(description="Texto original reescrito de forma clara e correta")
-    query_intencao_resumida: str = Field(description="Resumo curto da intenção da pergunta")
-    query_tecnica: str = Field(description="Versão formal e técnica, linguagem acadêmica")
-    query_simplificada: str = Field(description="Versão simples para iniciantes")
-    tokens_semanticos: list[str] = Field(description="Lista de palavras-chave e termos semânticos importantes")
+    query_corrigida: str = Field(
+        ...,
+        description="Texto original reescrito de forma clara e correta, mantendo o sentido da pergunta."
+    )
+    query_intencao_resumida: str = Field(
+        ...,
+        description="Resumo curto da intenção da pergunta, sintetizando o que o usuário quer saber."
+    )
+    query_tecnica: str = Field(
+        ...,
+        description="Versão formal e técnica da pergunta, usando linguagem acadêmica apropriada."
+    )
+    query_simplificada: str = Field(
+        ...,
+        description="Versão simples da pergunta, explicada de forma acessível para iniciantes."
+    )
+    tokens_semanticos: List[str] = Field(
+        ...,
+        description="Lista de palavras-chave e termos semânticos importantes presentes na pergunta."
+    )
