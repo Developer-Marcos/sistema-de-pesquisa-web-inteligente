@@ -9,3 +9,5 @@ sentence-transformers
 httpx
 trafilatura
 asyncio
+fastapi
+uvicorn
