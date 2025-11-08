@@ -9,32 +9,29 @@ const Pagina_inicial = () => {
   const [resultado, setResultado] = useState(null);
   const [carregar, setCarregar] = useState(false);
 
-  async function handleSubmit() {
-    if (!pesquisa.topico) {
-      alert("Digite algo para pesquisar");
-      return;
-    }
+async function handleSubmit(textoManual) {
+  setCarregar(true);
+  setResultado(null);
 
-    setCarregar(true);
-    setResultado(null);
+  const perguntaFinal = textoManual !== undefined ? textoManual : pesquisa.topico;
 
-    try {
-      const resposta = await fetch("http://127.0.0.1:8000/api/processar", {
+  try {
+    const resposta = await fetch("http://127.0.0.1:8000/api/processar", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ pergunta: pesquisa.topico })
+      body: JSON.stringify({ pergunta: perguntaFinal })
     });
 
-
-      const dados = await resposta.json();
-      setResultado(dados);
-    } catch (error) {
-      console.error("Error", error);
-      setResultado({error: "Erro ao se comunicar com o servidor"});
-    }
-
-    setCarregar(false);
+    const dados = await resposta.json();
+    setResultado(dados);
+  } catch (error) {
+    console.error("Error", error);
+    setResultado({ error: "Erro ao se comunicar com o servidor" });
   }
+
+  setCarregar(false);
+}
+
 
   return (
     <div>
@@ -49,9 +46,10 @@ const Pagina_inicial = () => {
       <Opcoes_Extras 
         onSelect={(texto) => {
           setPesquisa({ topico: texto });
-          handleSubmit();
+          handleSubmit(texto);
         }}
       />
+
 
       {carregar && (
         <p className="text-white mt-4 opacity-80">Gerando sua resposta</p>
