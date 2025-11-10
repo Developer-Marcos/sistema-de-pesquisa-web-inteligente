@@ -6,7 +6,7 @@ import asyncio
 
 from typing import List, Dict, Optional
 
-def buscar_urls(pergunta: str, api_key: str, max_resultados: int = 15) -> List[str]:
+def buscar_urls(pergunta: str, api_key: str, max_resultados: int = 25) -> List[str]:
       tavily_search_tool = TavilySearch(
       tavily_api_key = api_key,
       max_results = max_resultados

@@ -7,22 +7,9 @@ from langchain_core.prompts import PromptTemplate, ChatPromptTemplate, SystemMes
 from langchain_core.output_parsers import PydanticOutputParser, CommaSeparatedListOutputParser, JsonOutputParser
 from parsers import QueryAprimorada
 
-def criar_embedder(chave_api=None):
-    if chave_api:
-        try:
-            modelo = GoogleGenerativeAIEmbeddings(
-                model="gemini-embedding-001",
-                api_key=chave_api
-            )
-            return EmbedderWrapper(modelo)
-        except:
-            print("Falha no Gemini. Alternando para local.")
-    
+def criar_embedder():
     modelo_local = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2", trust_remote_code=True)
-    print("Usando modelo local: MiniLM")
     return EmbedderWrapper(modelo_local)
-
-
 
 def chunking(texto: str, url: str, titulo: str, max_chars: int = 500, overlap: int = 200) -> list[dict]:
     chunks = []
@@ -52,27 +39,32 @@ def chunking(texto: str, url: str, titulo: str, max_chars: int = 500, overlap: i
 
 def query_enhancement(pergunta: str):
     prompt_query =("""
-        Você é um sistema especializado em reformular consultas para mecanismos de busca e recuperação de informações (RAG).
+            Você é um sistema especializado em reformular consultas para mecanismos de busca e recuperação de informações (RAG).
 
-        Tarefa:
-        Dado uma pergunta, você deve gerar 4 versões diferentes da consulta com o objetivo de maximizar tanto precisão quanto cobertura semântica.
+            Tarefa:
+            Dado uma pergunta, gere 4 versões diferentes da consulta para maximizar precisão e cobertura semântica.
 
-        Pergunta: {pergunta}
+            Pergunta: {pergunta}
 
-        Regras:
-        - Mantenha fidelidade à intenção original
-        - Não invente fatos
-        - Nunca devolva respostas, apenas reformulações
-        - Saída obrigatória no formato JSON do modelo QueryAprimorada
+            Regras:
+            - Mantenha fidelidade à intenção original
+            - Não invente fatos
+            - Não responda a pergunta, apenas reformule
+            - A saída deve ser exclusivamente um JSON válido
+            - Não inclua texto fora do JSON
+            - Não inclua rótulos externos como "QueryAprimorada"
+            - Preencha APENAS estes campos:
 
-        Campos:
-        - query_corrigida: versão clara e gramaticalmente correta
-        - query_intencao_resumida: frase curta explicando o objetivo da busca
-        - query_tecnica: versão formal e acadêmica
-        - query_simplificada: linguagem simples
-        - tokens_semanticos: lista de palavras chave sem stopwords
+            Campos:
+            - query_corrigida: versão clara e gramaticalmente correta
+            - query_intencao_resumida: frase curta com objetivo da busca
+            - query_tecnica: versão formal e acadêmica
+            - query_simplificada: linguagem simples
+            - tokens_semanticos: lista com palavras chave sem stopwords
 
-        Foque em qualidade e clareza semântica.""")
+            IMPORTANTE:
+            Retorne somente o JSON com os campos acima, sem explicações, sem Markdown, sem rótulos externos.
+    """)
 
     prompt = PromptTemplate(
         template=prompt_query,
@@ -93,23 +85,34 @@ def query_enhancement(pergunta: str):
     ]
 
     
-def batch_processing(chunks: list, modelo_embedder, tamanho_batch: int = 50) -> tuple[list, list]:
+import asyncio
+from typing import List, Dict, Tuple
+
+async def batch_processing(chunks: List[Dict], modelo_embedder, tamanho_batch: int = 50) -> Tuple[List[List[float]], List[Dict]]:
     resultados_embeddings = []
     resultados_metadados = []
 
+    async def processar_batch(batch: List[Dict]):
+        texto_batch = [c.get("page_content", "") for c in batch]
+        metadados_batch = [c.get("metadata", {}) for c in batch]
+
+    
+        batch_embeddings = await asyncio.to_thread(modelo_embedder.embed_documents, texto_batch)
+        return batch_embeddings, metadados_batch
+
+    
+    tasks = []
     for i in range(0, len(chunks), tamanho_batch):
         batch = chunks[i:i + tamanho_batch]
+        tasks.append(processar_batch(batch))
 
-        texto_batch = [c["page_content"] for c in batch]
-        metadados_batch = [c["metadata"] for c in batch]
+    resultados = await asyncio.gather(*tasks)
 
-        batch_embeddings = modelo_embedder.embed_documents(texto_batch)
-
+    for batch_embeddings, metadados_batch in resultados:
         resultados_embeddings.extend(batch_embeddings)
         resultados_metadados.extend(metadados_batch)
 
     return resultados_embeddings, resultados_metadados
-
 
 
 def criar_db(embeddings, metadados, chunks, embedder_modelo):
@@ -193,11 +196,16 @@ Regras:
 
     chain_final = prompt_final | LLM | parser
 
-    resultado = await chain_final.ainvoke({
+    resultado_raw = await chain_final.ainvoke({
         "contexto_recuperado": contexto,
         "pergunta": pergunta,
         "schema_gerado": schema_gerado
     })
+
+    if not isinstance(resultado_raw, dict):
+        resultado = parser.parse(resultado_raw)
+    else:
+        resultado = resultado_raw
 
     return resultado
 
