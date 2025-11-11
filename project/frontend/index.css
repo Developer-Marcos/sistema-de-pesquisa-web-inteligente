@@ -3,3 +3,35 @@
 body {
   font-family: 'JetBrains Mono', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeOut {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(6px); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn .25s ease forwards;
+}
+.animate-fadeOut {
+  animation: fadeOut .25s ease forwards;
+}
+
+@keyframes specOpen {
+  from { opacity: 0; transform: translateY(-6px) scale(0.995); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes specClose {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to   { opacity: 0; transform: translateY(-6px) scale(0.995); }
+}
+
+.animate-specOpen {
+  animation: specOpen .22s cubic-bezier(.2,.9,.3,1) forwards;
+}
+.animate-specClose {
+  animation: specClose .18s cubic-bezier(.4,.0,.2,1) forwards;
+}

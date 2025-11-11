@@ -12,10 +12,10 @@ const Barra_Pesquisa = ({ pesquisa, setPesquisa, onSubmit }) => {
   }
 
   return (
-    <div>
-      <form className='w-120' onSubmit={handleSubmit}>
-        <div className="shadow-md p-0.5 rounded-full bg-gradient-to-r from-[rgba(255,208,147)] to-[rgba(235,175,255)] w-140 focus-within:shadow-xl focus-within:-translate-y-1 hover:shadow-xl hover:-translate-y-1 transition transform duration-300">
-          <div className="bg-black rounded-full shadow-md flex items-center opacity-70"> 
+    <div className="flex flex-col">
+      <form className="w-full max-w-[560px]" onSubmit={handleSubmit}>
+        <div className="shadow-md p-0.5 rounded-full bg-gradient-to-r from-[rgba(255,208,147)] to-[rgba(235,175,255)] focus-within:shadow-xl focus-within:-translate-y-1 hover:shadow-xl hover:-translate-y-1 transition transform duration-300">
+          <div className="bg-black rounded-full shadow-md flex items-center bg-opacity-70"> 
             
             <input 
               name="topico"
@@ -23,11 +23,15 @@ const Barra_Pesquisa = ({ pesquisa, setPesquisa, onSubmit }) => {
               value={pesquisa.topico}
               type="text"
               placeholder="Insira o tópico de pesquisa"
-              autocomplete="off"
-              className="flex-grow pl-4 pt-2 pb-2 text-lg focus:outline-none text-white"
+              autoComplete="off"
+              aria-label="Campo de pesquisa"
+              className="flex-grow pl-4 py-2 text-lg focus:outline-none text-white placeholder-gray-300"
             />
 
-            <button type="submit" className="p-2.5 w-12 h-12 flex items-center justify-center rounded-full bg-transparent hover:cursor-pointer hover:opacity-50">
+            <button 
+              type="submit" 
+              className="p-2.5 w-12 h-12 flex items-center justify-center rounded-full bg-transparent hover:cursor-pointer hover:opacity-75 transition"
+            >
               <img src={iconePesquisa} alt="Ícone de Pesquisa" className="w-6 h-6" />
             </button>
 
@@ -35,10 +39,9 @@ const Barra_Pesquisa = ({ pesquisa, setPesquisa, onSubmit }) => {
         </div>
       </form>
 
-      <div className='m-2 mb-4 text-sm bg-gradient-to-r from-[#FFD093] to-[#EBAFFF] bg-clip-text text-transparent'>
-        O sistema buscará informações relevantes e criará um estudo<br/> completo sobre sua questão.
+      <div className="mt-6 mb-4 text-sm bg-gradient-to-r from-[#FFD093] to-[#EBAFFF] bg-clip-text text-transparent text-center">
+        O sistema buscará informações relevantes e criará um estudo completo sobre sua questão.
       </div>
-      
     </div>
   );
 };

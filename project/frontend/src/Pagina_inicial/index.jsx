@@ -3,38 +3,46 @@ import Barra_Pesquisa from "../Barra_Pesquisa";
 import Opcoes_Extras from "../Opcoes_Extras";
 import Titulo from "../titulo";
 
-const Pagina_inicial = () => {
-
+const Pagina_inicial = ({ setResultado, setLoading }) => {
   const [pesquisa, setPesquisa] = useState({ topico: "" });
-  const [resultado, setResultado] = useState(null);
-  const [carregar, setCarregar] = useState(false);
 
-async function handleSubmit(textoManual) {
-  setCarregar(true);
-  setResultado(null);
+  async function processarPergunta(textoFinal) {
+    try {
+      const resposta = await fetch("http://127.0.0.1:8000/api/processar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pergunta: textoFinal })
+      });
 
-  const perguntaFinal = textoManual !== undefined ? textoManual : pesquisa.topico;
+      const dados = await resposta.json();
+      setResultado(dados);
+    } catch (error) {
+      console.error("Error", error);
+      setResultado({ error: "Erro ao se comunicar com o servidor" });
+    }
 
-  try {
-    const resposta = await fetch("http://127.0.0.1:8000/api/processar", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ pergunta: perguntaFinal })
-    });
-
-    const dados = await resposta.json();
-    setResultado(dados);
-  } catch (error) {
-    console.error("Error", error);
-    setResultado({ error: "Erro ao se comunicar com o servidor" });
+    setLoading(false);
   }
 
-  setCarregar(false);
-}
+  async function handleSubmit(textoManual) {
+    const textoFinal = textoManual !== undefined ? textoManual : pesquisa.topico;
+    if (!textoFinal.trim()) return;
 
+    // anima fade-out
+    const page = document.querySelector("#paginaInicial");
+    page.classList.add("animate-fadeOut");
+
+    setTimeout(() => {
+      setLoading(true);
+      processarPergunta(textoFinal);
+    }, 250);
+  }
 
   return (
-    <div>
+    <div
+      id="paginaInicial"
+      className="mt-12 animate-fadeIn opacity-0"
+    >
       <Titulo />
 
       <Barra_Pesquisa 
@@ -49,20 +57,6 @@ async function handleSubmit(textoManual) {
           handleSubmit(texto);
         }}
       />
-
-
-      {carregar && (
-        <p className="text-white mt-4 opacity-80">Gerando sua resposta</p>
-      )}
-
-      {resultado && (
-        <div className="bg-white text-black p-4 rounded mt-4 w-3/5 mx-auto shadow-lg">
-          <h3 className="font-bold mb-2">Resultado</h3>
-          <pre className="text-xs whitespace-pre-wrap">
-            {JSON.stringify(resultado, null, 2)}
-          </pre>
-        </div>
-      )}
     </div>
   );
 };
