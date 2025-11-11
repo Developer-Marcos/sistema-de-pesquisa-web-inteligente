@@ -28,21 +28,12 @@ const Pagina_inicial = ({ setResultado, setLoading }) => {
     const textoFinal = textoManual !== undefined ? textoManual : pesquisa.topico;
     if (!textoFinal.trim()) return;
 
-    // anima fade-out
-    const page = document.querySelector("#paginaInicial");
-    page.classList.add("animate-fadeOut");
-
-    setTimeout(() => {
-      setLoading(true);
-      processarPergunta(textoFinal);
-    }, 250);
+    setLoading(true);
+    processarPergunta(textoFinal);
   }
 
   return (
-    <div
-      id="paginaInicial"
-      className="mt-12 animate-fadeIn opacity-0"
-    >
+    <div className="">
       <Titulo />
 
       <Barra_Pesquisa 

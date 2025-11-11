@@ -39,7 +39,7 @@ const Barra_Pesquisa = ({ pesquisa, setPesquisa, onSubmit }) => {
         </div>
       </form>
 
-      <div className="mt-6 mb-4 text-sm bg-gradient-to-r from-[#FFD093] to-[#EBAFFF] bg-clip-text text-transparent text-center">
+      <div className="mt-6 mb-4 text-sm bg-gradient-to-r from-[#FFD093] to-[#EBAFFF] bg-clip-text text-transparent">
         O sistema buscará informações relevantes e criará um estudo completo sobre sua questão.
       </div>
     </div>

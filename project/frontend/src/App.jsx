@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Pagina_inicial from "./Pagina_inicial";
 import TelaCarregamento from "./Tela_Carregamento";
 import Pagina_final from "./Pagina_final";
@@ -14,20 +15,52 @@ function App() {
       <div className="flex flex-col min-h-screen bg-black opacity-70">
         <LimiteHeader />
 
-        <main className="flex-grow flex justify-center overflow-y-auto">
-          {!resultado && !loading && (
-            <Pagina_inicial 
-              setResultado={setResultado}
-              setLoading={setLoading}
-            />
-          )}
+        <main className="flex-grow flex justify-center items-center">
+  <div className="flex flex-col justify-center w-full max-w-5xl px-4 py-8 items-center">
+    <AnimatePresence mode="wait">
+      {!resultado && !loading && (
+        <motion.div
+          key="inicio"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -12 }}
+          transition={{ duration: 0.35 }}
+        >
+          <Pagina_inicial 
+            setResultado={setResultado}
+            setLoading={setLoading}
+          />
+        </motion.div>
+      )}
 
-          {loading && !resultado && <TelaCarregamento />}
+      {loading && !resultado && (
+        <motion.div
+          key="carregando"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.25 }}
+        >
+          <TelaCarregamento />
+        </motion.div>
+      )}
 
-          {resultado && !loading && (
-            <Pagina_final pesquisa={resultado} setResultado={setResultado} />
-          )}
-        </main>
+      {resultado && !loading && (
+        <motion.div
+          key="resultado"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -12 }}
+          transition={{ duration: 0.35 }}
+        >
+          <Pagina_final pesquisa={resultado} setResultado={setResultado} />
+        </motion.div>
+      )}
+    </AnimatePresence>
+  </div>
+</main>
+
+
 
         <LimiteFooter />
       </div>
