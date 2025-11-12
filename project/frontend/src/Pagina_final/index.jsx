@@ -1,18 +1,22 @@
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import iconeLink from "../svg/link_icon.svg?url";
 
 const Pagina_final = ({ pesquisa, setResultado }) => {
   const [showSpecs, setShowSpecs] = useState(false);
 
-  if (!pesquisa?.pesquisa) {
-    return null;
+  if (!pesquisa) {
+    return (
+      <div className="text-white p-6">
+        Carregando resultado…
+      </div>
+    );
   }
 
-  const dados = pesquisa.pesquisa;
-  const campos = dados.campos_dinamicos || [];
-  const fontes = dados.fontes_citadas || [];
-
+  const dados = pesquisa;
+  const campos = dados?.campos_dinamicos || [];
+  const fontes = dados?.fontes_citadas || [];
+  
   return (
     <motion.div
       className="text-white p-6 max-w-5xl mx-auto"

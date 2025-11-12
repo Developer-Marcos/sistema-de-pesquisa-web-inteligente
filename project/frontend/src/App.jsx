@@ -41,7 +41,11 @@ function App() {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.25 }}
         >
-          <TelaCarregamento />
+          <TelaCarregamento 
+            setResultado={setResultado}
+            setLoading={setLoading}
+          />
+
         </motion.div>
       )}
 

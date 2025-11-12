@@ -6,6 +6,8 @@ from embedder_wrapper import EmbedderWrapper
 from langchain_core.prompts import PromptTemplate, ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 from langchain_core.output_parsers import PydanticOutputParser, CommaSeparatedListOutputParser, JsonOutputParser
 from parsers import QueryAprimorada
+import asyncio
+from typing import List, Dict, Tuple
 
 def criar_embedder():
     modelo_local = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2", trust_remote_code=True)
@@ -83,10 +85,6 @@ def query_enhancement(pergunta: str):
         resultado.query_simplificada,
         " ".join(resultado.tokens_semanticos) if isinstance(resultado.tokens_semanticos, list) else resultado.tokens_semanticos
     ]
-
-    
-import asyncio
-from typing import List, Dict, Tuple
 
 async def batch_processing(chunks: List[Dict], modelo_embedder, tamanho_batch: int = 50) -> Tuple[List[List[float]], List[Dict]]:
     resultados_embeddings = []

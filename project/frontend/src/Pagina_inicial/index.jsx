@@ -8,20 +8,17 @@ const Pagina_inicial = ({ setResultado, setLoading }) => {
 
   async function processarPergunta(textoFinal) {
     try {
-      const resposta = await fetch("http://127.0.0.1:8000/api/processar", {
+      await fetch("http://127.0.0.1:8000/api/processar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ pergunta: textoFinal })
       });
 
-      const dados = await resposta.json();
-      setResultado(dados);
     } catch (error) {
-      console.error("Error", error);
+      console.error("Erro", error);
       setResultado({ error: "Erro ao se comunicar com o servidor" });
+      setLoading(false);
     }
-
-    setLoading(false);
   }
 
   async function handleSubmit(textoManual) {
@@ -29,11 +26,11 @@ const Pagina_inicial = ({ setResultado, setLoading }) => {
     if (!textoFinal.trim()) return;
 
     setLoading(true);
-    processarPergunta(textoFinal);
+    await processarPergunta(textoFinal);
   }
 
   return (
-    <div className="">
+    <div>
       <Titulo />
 
       <Barra_Pesquisa 
