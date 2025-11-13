@@ -9,5 +9,6 @@ sentence-transformers
 httpx
 trafilatura
 asyncio
+redis
 fastapi
 uvicorn

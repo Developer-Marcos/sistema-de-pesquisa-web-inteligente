@@ -62,7 +62,7 @@ def query_enhancement(pergunta: str):
             - query_intencao_resumida: frase curta com objetivo da busca
             - query_tecnica: versão formal e acadêmica
             - query_simplificada: linguagem simples
-            - tokens_semanticos: lista com palavras chave sem stopwords
+            - tokens_semanticos: Uma LISTA de strings (ex: ["ia", "futuro", "conteudo"]) contendo EXATAMENTE as 4 palavras-chave (substantivos) mais vitais. Ordene por relevância.
 
             IMPORTANTE:
             Retorne somente o JSON com os campos acima, sem explicações, sem Markdown, sem rótulos externos.
@@ -74,8 +74,9 @@ def query_enhancement(pergunta: str):
     )
 
     parser = PydanticOutputParser(pydantic_object=QueryAprimorada)
+    llm_melhora_query = LLM.bind(temperature=0)
 
-    chain = prompt | LLM | parser
+    chain = prompt | llm_melhora_query | parser
 
     resultado = chain.invoke({"pergunta": pergunta})
 
