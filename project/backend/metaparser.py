@@ -30,8 +30,6 @@ Exemplo de saída esperada:
 }}
 """
 
-
-
 prompt_funcao = """Contexto da Tarefa:
 Analise a pergunta do usuário e preencha o JSON da 'DynamicAnalysisSchema' com os campos de análise mais cruciais (entre 3 e 7 campos).
 
