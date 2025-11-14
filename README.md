@@ -97,4 +97,30 @@ uvicorn main:app --reload
 <hr>
 
 #### Fluxo de funcionamento:
-O Usuário faz uma pergunta ou escolhe uma das pré definições:
+<p>O Usuário faz uma pergunta ou escolhe uma das pré definições:</p>
+
+![TelaInicial](images/tela_inicial.png)
+
+<hr>
+
+<p>O sistema vai processar todo o fluxo:<p/>
+ 
+![TelaCarregamento](images/tela_carregamento.png)
+
+<p>No terminal do backend é possivel ver mais detalhes:</p>
+
+![DetalhesProcessamento](images/fluxo.png)
+
+<hr>
+
+<p>No final a pesquisa é gerada no frontend:</p>
+
+![PesquisaCompleta](images/tela_final.png)
+
+<p>Os detalhes também podem ser vistos:</p>
+
+![Detalhes](images/tela_info.png)
+
+<hr>
+
+###### Mais detalhes podem ser vistos dentro do código.
