@@ -87,11 +87,7 @@ uvicorn main:app --reload
 
 **Ativando o banco de dados Redis:**
 -  Baixe o Redis DB do site oficial.
--  Após baixar, rode o banco de dados: 
-```
-sudo systemctl start redis-server
-```
-
+-  Após baixar rode o banco de dados. 
 
 <hr>
 
