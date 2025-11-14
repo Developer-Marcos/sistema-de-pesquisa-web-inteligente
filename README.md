@@ -1,6 +1,6 @@
 # sistema-de-pesquisa-web-inteligente
 
-###### Projeto fullstack com pipeline avançado de RAG, metaparser, web scraping (tavily), FAISS, embeddings, geração com LLMs e caching otimizado usando Redis, integrado a um backend FastAPI e frontend React com SSE.
+###### Projeto fullstack com pipeline avançado de RAG (Usando query enchantment, metaparser, chunking overlap, batch processing assíncrono e semantic search), web scraping (tavily), FAISS, embeddings, geração com LLMs e caching otimizado usando Redis, integrado a um backend FastAPI e frontend React com SSE.
 
 O usuário faz uma pergunta e o sistema pesquisa automaticamente na internet, acessando sites relevantes e extraindo as informações mais importantes. Enquanto isso acontece, o backend envia atualizações em tempo real para o frontend, que exibe uma tela de carregamento interativa. No final, o usuário recebe um resumo completo do que foi encontrado, junto com as fontes utilizadas e detaslhes técnicos.
 
