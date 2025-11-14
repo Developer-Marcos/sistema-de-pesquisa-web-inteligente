@@ -35,7 +35,7 @@ O usuário faz uma pergunta e o sistema pesquisa automaticamente na internet, ac
 ### Como utilizar?
 Clone o repositório:
 ```
-git clone https://github.com/Developer-Marcos/analisador-de-curriculos.git
+git clone https://github.com/Developer-Marcos/sistema-de-pesquisa-web-inteligente.git
 ```
 
 <hr>
