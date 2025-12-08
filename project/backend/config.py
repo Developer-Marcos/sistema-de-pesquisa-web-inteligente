@@ -12,6 +12,11 @@ TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
 if TAVILY_API_KEY is None:
       print("POR FAVOR, INSIRA A CHAVE DE API DO TAVILY_API_KEY NO ARQUIVO '.env'")
 
+if os.getenv("LANGSMITH_API_KEY"):
+    print(f"LangSmith ativado no projeto: {os.getenv('LANGCHAIN_PROJECT')}")
+else:
+    print("LangSmith NÃO configurado, iniciando sem ele.")
+
 LLM = ChatGoogleGenerativeAI(
       model="gemini-2.5-flash-lite",
       api_key=GOOGLE_API_KEY

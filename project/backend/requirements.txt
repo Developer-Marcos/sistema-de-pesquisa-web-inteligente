@@ -3,6 +3,7 @@ langchain
 langchain-core
 langchain-tavily
 langchain_google_genai
+langsmith
 pydantic
 faiss-cpu
 sentence-transformers

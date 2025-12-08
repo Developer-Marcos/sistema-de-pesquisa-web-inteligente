@@ -3,6 +3,7 @@ from metaparser import criar_metaparser
 from extrair_dados_web import buscar_urls, extrair_conteudo
 from fila_global import progresso, resultado_final
 from langchain_core.output_parsers import JsonOutputParser
+from langsmith import traceable
 from config import TAVILY_API_KEY, LLM
 from time import time
 import unicodedata
@@ -48,6 +49,7 @@ def normalizar(texto):
     nfkd = unicodedata.normalize('NFKD', texto)
     return "".join([c for c in nfkd if not unicodedata.combining(c)]).lower()
 
+@traceable(run_type="chain")
 async def processar_dados(dados: str, cancelar) -> dict:
     specs = dict()
     embedder_modelo = criar_embedder()

@@ -3,9 +3,10 @@ from urllib.parse import urlparse
 import httpx
 import trafilatura
 import asyncio
-
+from langsmith import traceable
 from typing import List, Dict, Optional
 
+@traceable(run_type="retriever", name="Tavily buscador de sites")
 def buscar_urls(pergunta: str, api_key: str, max_resultados: int = 25) -> List[str]:
       tavily_search_tool = TavilySearch(
       tavily_api_key = api_key,
@@ -72,7 +73,7 @@ async def baixar_conteudo(url: str) -> dict[str, str]:
         return {"url": url, "conteudo_textual": "", "title": "Sem título"}
 
 
-
+@traceable(run_type="tool", name="Trafiladura extrator de conteudo dos sites buscados")
 async def extrair_conteudo(urls: List[str]) -> List[Dict[str, str]]:
     tarefas = [baixar_conteudo(url) for url in urls] 
     resultados = await asyncio.gather(*tarefas)

@@ -8,11 +8,13 @@ from langchain_core.output_parsers import PydanticOutputParser, CommaSeparatedLi
 from parsers import QueryAprimorada
 import asyncio
 from typing import List, Dict, Tuple
+from langsmith import traceable
 
 def criar_embedder():
     modelo_local = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2", trust_remote_code=True)
     return EmbedderWrapper(modelo_local)
 
+@traceable(run_type="tool", name="Chunking do texto")
 def chunking(texto: str, url: str, titulo: str, max_chars: int = 500, overlap: int = 200) -> list[dict]:
     chunks = []
     inicio = 0
@@ -39,6 +41,7 @@ def chunking(texto: str, url: str, titulo: str, max_chars: int = 500, overlap: i
 
     return chunks
 
+@traceable(run_type="chain", name="Aprimoramento do Query")
 def query_enhancement(pergunta: str):
     prompt_query =("""
             Você é um sistema especializado em reformular consultas para mecanismos de busca e recuperação de informações (RAG).
@@ -87,6 +90,7 @@ def query_enhancement(pergunta: str):
         " ".join(resultado.tokens_semanticos) if isinstance(resultado.tokens_semanticos, list) else resultado.tokens_semanticos
     ]
 
+@traceable(run_type="tool", name="Gerador de embeddings (Batch)")
 async def batch_processing(chunks: List[Dict], modelo_embedder, tamanho_batch: int = 50) -> Tuple[List[List[float]], List[Dict]]:
     resultados_embeddings = []
     resultados_metadados = []
@@ -125,7 +129,7 @@ def criar_db(embeddings, metadados, chunks, embedder_modelo):
 
     return db_vetorial
 
-
+@traceable(run_type="chain", name="Reranking dos resultados semanticos")
 def reranking(pergunta: str, resultados_semanticos: list, top_k: int = 5):
     docs_texto = ""
     for idx, doc in enumerate(resultados_semanticos):
@@ -163,7 +167,7 @@ def reranking(pergunta: str, resultados_semanticos: list, top_k: int = 5):
 
     return reranked_docs
 
-
+@traceable(run_type="chain", name="Geração de Resposta Final")
 async def gerar_resposta(contexto, pergunta, schema_gerado, parser: JsonOutputParser):
     prompt_sistema = SystemMessagePromptTemplate.from_template(f"""
 Você é um Analista de Dados e Pesquisa de Alta Performance.

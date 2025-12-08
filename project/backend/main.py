@@ -67,13 +67,11 @@ async def stream():
 async def processar_pergunta(dados: Entrada):
     global process_task
 
-    # Limpa filas antigas
     while not progresso.empty():
         progresso.get_nowait()
     while not resultado_final.empty():
         resultado_final.get_nowait()
 
-    # Cria a task global de processamento
     process_task = asyncio.create_task(processar_dados(dados.pergunta, lambda: False))
 
     return {"status": "processamento iniciado"}
