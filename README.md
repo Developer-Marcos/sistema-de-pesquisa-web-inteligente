@@ -1,6 +1,6 @@
 # sistema-de-pesquisa-web-inteligente
 
-###### Projeto fullstack com pipeline avançado de RAG, metaparser, web scraping (tavily), FAISS, embeddings, geração com LLMs e caching otimizado usando Redis, integrado a um backend FastAPI e frontend React com SSE.
+###### Projeto fullstack com pipeline avançado de RAG (Usando query enchantment, metaparser, chunking overlap, batch processing assíncrono, semantic search e reranking), web scraping (tavily), FAISS, embeddings, geração com LLMs e caching otimizado usando Redis, integrado a um backend FastAPI e frontend React com Server-Sent Events (SSE).
 
 O usuário faz uma pergunta e o sistema pesquisa automaticamente na internet, acessando sites relevantes e extraindo as informações mais importantes. Enquanto isso acontece, o backend envia atualizações em tempo real para o frontend, que exibe uma tela de carregamento interativa. No final, o usuário recebe um resumo completo do que foi encontrado, junto com as fontes utilizadas e detaslhes técnicos.
 
@@ -35,7 +35,7 @@ O usuário faz uma pergunta e o sistema pesquisa automaticamente na internet, ac
 ### Como utilizar?
 Clone o repositório:
 ```
-git clone https://github.com/Developer-Marcos/analisador-de-curriculos.git
+git clone https://github.com/Developer-Marcos/sistema-de-pesquisa-web-inteligente.git
 ```
 
 <hr>
@@ -97,4 +97,30 @@ uvicorn main:app --reload
 <hr>
 
 #### Fluxo de funcionamento:
-O Usuário faz uma pergunta ou escolhe uma das pré definições:
+<p>O Usuário faz uma pergunta ou escolhe uma das pré definições:</p>
+
+![TelaInicial](images/tela_inicial.png)
+
+<hr>
+
+<p>O sistema vai processar todo o fluxo e receber as informações via SSE:<p/>
+ 
+![TelaCarregamento](images/tela_carregamento.png)
+
+<p>No terminal do backend é possivel ver mais detalhes:</p>
+
+![DetalhesProcessamento](images/fluxo.png)
+
+<hr>
+
+<p>No final a pesquisa é gerada no frontend:</p>
+
+![PesquisaCompleta](images/tela_final.png)
+
+<p>Os detalhes também podem ser vistos:</p>
+
+![Detalhes](images/tela_info.png)
+
+<hr>
+
+###### Mais detalhes podem ser vistos dentro do código.
