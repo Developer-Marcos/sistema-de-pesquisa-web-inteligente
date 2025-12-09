@@ -32,6 +32,18 @@ O usuário faz uma pergunta e o sistema pesquisa automaticamente na internet, ac
 
 <hr>
 
+###### Opcional
+#### Observabilidade com o LangSmith: 
+Basta colocar as variáveis do LangSmith no .env:
+```
+LANGSMITH_API_KEY = sua_api_key
+LANGCHAIN_TRACING_V2= true
+LANGCHAIN_ENDPOINT= https://api.smith.langchain.com
+LANGCHAIN_PROJECT= Ferramenta_de_Pesquisa_Web
+```
+![LangSmith](https://img.shields.io/badge/-LangSmith-%231C3C3C?style=flat-square&logo=langchain&logoColor=white) 
+<hr>
+
 ### Como utilizar?
 Clone o repositório:
 ```
