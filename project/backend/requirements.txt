@@ -2,6 +2,7 @@ python-dotenv
 langchain
 langchain-core
 langchain-tavily
+langchain-community
 langchain_google_genai
 langsmith
 pydantic
