@@ -41,10 +41,45 @@ LANGCHAIN_TRACING_V2= true
 LANGCHAIN_ENDPOINT= https://api.smith.langchain.com
 LANGCHAIN_PROJECT= Ferramenta_de_Pesquisa_Web
 ```
+
 ![LangSmith](https://img.shields.io/badge/-LangSmith-%231C3C3C?style=flat-square&logo=langchain&logoColor=white) 
 <hr>
 
 ### Como utilizar?
+---
+
+### Rodando com Docker (Recomendado)
+
+![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
+
+Para facilitar o teste da aplicação sem a necessidade de configurar um ambiente Python local, você pode utilizar o Docker.
+
+###### Assim o projeto inicializa so de rodar a imagem 
+Crie o .env no backend com as suas chaves: 
+```
+GOOGLE_API_KEY = sua chave de API do Gemini
+TAVILY_API_KEY = sua chave de API do Tavily
+```
+Construa a imagem:
+```
+docker-compose up --build
+```
+
+Assim o projeto roda de forma direta, sem precisar de mais nenhuma config.
+
+<hr>
+
+### Como configurar?
+Clone e entre no repositório:
+```
+git clone https://github.com/Developer-Marcos/sistema-de-pesquisa-web-inteligente.git
+```
+```
+cd ai_decision_engine/project
+```
+
+---
+
 Clone o repositório:
 ```
 git clone https://github.com/Developer-Marcos/sistema-de-pesquisa-web-inteligente.git
